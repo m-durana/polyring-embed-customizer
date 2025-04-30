@@ -1,10 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polyring Theme Customizer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+  <script async src="https://polyring.ch/embed.js" charset="utf-8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <link rel="stylesheet" href="style.css" type="text/css">
 </head>
-<body>
 
+<body>
+  <div id="preview">
+    <webring-banner id="banner" theme="dark"></webring-banner>
+  </div>
+
+  <div id="divider"></div>
+
+  <div id="controls">
+
+  <div class="module">
+    <label>Preview<br>Background</label>
+    <div id="previewBgPicker" class="picker-container"></div>
+  </div>
+
+  <div class="module">
+    <label>Banner<br>Background</label>
+    <div id="bgColorPicker" class="picker-container"></div>
+  </div>
+
+  <div class="module">
+    <label>Outer<br>Border<br>Color</label>
+    <div id="borderColorPicker" class="picker-container"></div>
+  </div>
+
+  <div class="module">
+    <label>Inner<br>Border<br>Color</label>
+    <div id="innerBorderColorPicker" class="picker-container"></div>
+  </div>
+
+  <div class="module">
+    <label>Text<br>Color</label>
+    <div id="textColorPicker" class="picker-container"></div>
+  </div>
+
+  <div class="module">
+    <label>Link<br>Color</label>
+    <div id="linkColorPicker" class="picker-container"></div>
+  </div>
+
+  <div class="module">
+    <label>Active<br>Link<br>Color</label>
+    <div id="linkActiveColorPicker" class="picker-container"></div>
+  </div>
+
+  <div class="module transparent-module">
+    <label for="transparentToggle">Transparent<br>Banner<br>Background</label>
+    <input type="checkbox" id="transparentToggle">
+  </div>
+
+    <div class="reset-buttons">
+      <button id="resetLight">Reset Light</button>
+      <button id="resetDark">Reset Dark</button>
+    </div>
+
+    <button id="exportJson">Export Theme JSON</button>
+  </div>
+
+  <script type="text/javascript" src="script.js"></script>
 </body>
 </html>
