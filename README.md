@@ -4,10 +4,6 @@ A small static page for previewing and exporting Polyring embed theme colors.
 
 Live site: https://akuta.xyz/polyring
 
-## Use
-
-Open `index.html` in a browser, or use the live version above. The page loads the Polyring embed script and Pickr from CDNs, so an internet connection is required.
-
 ## Integrate With Polyring
 
 1. Customize the banner colors in the preview.
