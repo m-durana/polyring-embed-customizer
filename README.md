@@ -34,9 +34,3 @@ If the exported JSON contains `"--background-color": "transparent"`, use that va
   --background-color: transparent;
 }
 ```
-
-## Features
-
-- Preview light and dark Polyring banner themes.
-- Adjust banner colors and preview background.
-- Export the current theme as `polyring-theme.json`.
