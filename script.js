@@ -20,6 +20,37 @@ const darkDefaults = {
   '--href-color-active': '#9f56ff'
 };
 
+const colorSwatches = [
+  'rgba(244, 67, 54, 1)',
+  'rgba(233, 30, 99, 0.95)',
+  'rgba(156, 39, 176, 0.9)',
+  'rgba(103, 58, 183, 0.85)',
+  'rgba(63, 81, 181, 0.8)',
+  'rgba(33, 150, 243, 0.75)',
+  'rgba(3, 169, 244, 0.7)',
+  'rgba(0, 188, 212, 0.7)',
+  'rgba(0, 150, 136, 0.75)',
+  'rgba(76, 175, 80, 0.8)',
+  'rgba(139, 195, 74, 0.85)',
+  'rgba(205, 220, 57, 0.9)',
+  'rgba(255, 235, 59, 0.95)',
+  'rgba(255, 193, 7, 1)'
+];
+
+const pickrComponents = {
+  preview: true,
+  opacity: false,
+  hue: true,
+  interaction: {
+    hex: true,
+    rgba: true,
+    hsla: true,
+    hsva: true,
+    cmyk: true,
+    input: true
+  }
+};
+
 const varMap = {
   '--background-color': 'bgColorPicker',
   '--outer-border-color': 'borderColorPicker',
@@ -31,80 +62,23 @@ const varMap = {
 
 const pickrs = {};
 
-pickrs.preview = Pickr.create({
-  el: '#previewBgPicker',
-  theme: 'classic',
-  default: '#ffffff',
-  swatches: [
-    'rgba(244, 67, 54, 1)',
-    'rgba(233, 30, 99, 0.95)',
-    'rgba(156, 39, 176, 0.9)',
-    'rgba(103, 58, 183, 0.85)',
-    'rgba(63, 81, 181, 0.8)',
-    'rgba(33, 150, 243, 0.75)',
-    'rgba(3, 169, 244, 0.7)',
-    'rgba(0, 188, 212, 0.7)',
-    'rgba(0, 150, 136, 0.75)',
-    'rgba(76, 175, 80, 0.8)',
-    'rgba(139, 195, 74, 0.85)',
-    'rgba(205, 220, 57, 0.9)',
-    'rgba(255, 235, 59, 0.95)',
-    'rgba(255, 193, 7, 1)'
-  ],
-  comparison: false,
-  components: {
-    preview: true,
-    opacity: false,
-    hue: true,
-    interaction: {
-      hex: true,
-      rgba: true,
-      hsla: true,
-      hsva: true,
-      cmyk: true,
-      input: true
-    }
-  }
-}).on('change', (color, instance) => {
+function createPicker(el, defaultColor) {
+  return Pickr.create({
+    el,
+    theme: 'classic',
+    default: defaultColor,
+    swatches: colorSwatches,
+    comparison: false,
+    components: pickrComponents
+  });
+}
+
+pickrs.preview = createPicker('#previewBgPicker', '#ffffff').on('change', (color) => {
   previewEl.style.background = color.toHEXA().toString();
 });
 
 Object.entries(varMap).forEach(([cssVar, elementId]) => {
-  pickrs[cssVar] = Pickr.create({
-    el: '#' + elementId,
-    theme: 'classic',
-    default: (darkDefaults[cssVar] || lightDefaults[cssVar]),
-    swatches: [
-      'rgba(244, 67, 54, 1)',
-      'rgba(233, 30, 99, 0.95)',
-      'rgba(156, 39, 176, 0.9)',
-      'rgba(103, 58, 183, 0.85)',
-      'rgba(63, 81, 181, 0.8)',
-      'rgba(33, 150, 243, 0.75)',
-      'rgba(3, 169, 244, 0.7)',
-      'rgba(0, 188, 212, 0.7)',
-      'rgba(0, 150, 136, 0.75)',
-      'rgba(76, 175, 80, 0.8)',
-      'rgba(139, 195, 74, 0.85)',
-      'rgba(205, 220, 57, 0.9)',
-      'rgba(255, 235, 59, 0.95)',
-      'rgba(255, 193, 7, 1)'
-    ],
-    comparison: false,
-    components: {
-      preview: true,
-      opacity: false,
-      hue: true,
-      interaction: {
-        hex: true,
-        rgba: true,
-        hsla: true,
-        hsva: true,
-        cmyk: true,
-        input: true
-      }
-    }
-  }).on('change', (color, instance) => {
+  pickrs[cssVar] = createPicker('#' + elementId, darkDefaults[cssVar] || lightDefaults[cssVar]).on('change', (color) => {
     bannerEl.style.setProperty(cssVar, color.toHEXA().toString());
   });
 });
@@ -148,6 +122,17 @@ let isDragging = false;
 let startX = 0, startY = 0;
 let origX = 0, origY = 0;
 
+function clampBannerPosition(x, y) {
+  const previewRect = previewEl.getBoundingClientRect();
+  const maxX = Math.max(0, previewRect.width - bannerEl.offsetWidth);
+  const maxY = Math.max(0, previewRect.height - bannerEl.offsetHeight);
+
+  return {
+    x: Math.max(0, Math.min(x, maxX)),
+    y: Math.max(0, Math.min(y, maxY))
+  };
+}
+
 bannerEl.addEventListener('mousedown', (e) => {
   isDragging = true;
   bannerEl.style.cursor = 'grabbing';
@@ -168,18 +153,10 @@ window.addEventListener('mousemove', (e) => {
   const dx = e.clientX - startX;
   const dy = e.clientY - startY;
 
-  let newX = origX + dx;
-  let newY = origY + dy;
+  const { x, y } = clampBannerPosition(origX + dx, origY + dy);
 
-  const previewRect = previewEl.getBoundingClientRect();
-  const bannerWidth = bannerEl.offsetWidth;
-  const bannerHeight = bannerEl.offsetHeight;
-
-  newX = Math.max(0, Math.min(newX, previewRect.width - bannerWidth));
-  newY = Math.max(0, Math.min(newY, previewRect.height - bannerHeight));
-
-  bannerEl.style.left = newX + 'px';
-  bannerEl.style.top = newY + 'px';
+  bannerEl.style.left = x + 'px';
+  bannerEl.style.top = y + 'px';
 });
 
 window.addEventListener('mouseup', () => {
