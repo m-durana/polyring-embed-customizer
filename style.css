@@ -3,17 +3,29 @@
   --preview-min-height: 240px;
 }
 
+html{
+  height:100%;
+  overflow:hidden;
+}
+
 *{
   box-sizing:border-box;
 }
 
 body{
+  position:fixed;
+  inset:0;
+  width:100%;
   margin:0;
   color:#202124;
   font-family:Arial, Helvetica, sans-serif;
   display:grid;
-  grid-template-rows:minmax(var(--preview-min-height),var(--preview-height,1fr)) 5px auto;
+  grid-template-rows:minmax(var(--preview-min-height),var(--preview-height,1fr)) 5px minmax(0, auto);
   height:100vh;
+  height:100svh;
+  max-height:100vh;
+  max-height:100svh;
+  min-height:0;
   overflow:hidden;
 }
 
@@ -24,19 +36,24 @@ body{
   align-items:center;
   justify-content:center;
   overflow:hidden;
+  min-height:0;
+  touch-action:none;
 }
 
 #banner{
   position:absolute;
-  width:480px !important;
+  width:min(480px, calc(100vw - 2rem)) !important;
+  max-width:calc(100vw - 2rem);
   cursor:grab;
   user-select:none;
+  touch-action:none;
 }
 
 #divider{
   height:5px;
   background:#d0d0d0;
   cursor:row-resize;
+  touch-action:none;
 }
 
 #controls{
@@ -46,8 +63,10 @@ body{
   grid-auto-rows:min-content;
   gap:1rem;
   overflow-y:auto;
+  min-height:0;
   padding:2rem 1rem 1rem;
   border-top:1px solid #e3e3e3;
+  -webkit-overflow-scrolling:touch;
 }
 
 .picker-container{
@@ -138,22 +157,57 @@ input[type="checkbox"]{
   height:1.25rem;
 }
 
-@media (max-width: 600px){
+@media (max-width: 700px){
   :root{
     --swatch-size: 52px;
     --preview-min-height: 180px;
+    --preview-height: clamp(180px, 34svh, 260px);
   }
 
-  #banner{
-    width:min(480px,calc(100vw - 2rem)) !important;
+  body{
+    grid-template-rows:var(--preview-height) 6px minmax(0, 1fr);
+  }
+
+  #divider{
+    height:6px;
   }
 
   #controls{
     grid-template-columns:1fr;
+    gap:.75rem;
     padding:1rem;
   }
 
+  .module,
+  .transparent-module{
+    justify-content:space-between;
+    gap:1rem;
+    border-bottom:1px solid #e3e3e3;
+    padding-bottom:.75rem;
+  }
+
   .module label{
-    width:130px;
+    width:auto;
+    height:auto;
+    justify-content:flex-start;
+    text-align:left;
+    line-height:1.25;
+  }
+
+  .reset-buttons{
+    flex-direction:column;
+    margin-top:.25rem;
+  }
+
+  .reset-buttons button,
+  #exportJson{
+    min-height:44px;
+  }
+
+  .pcr-app{
+    width:min(100vw - 1rem, 28rem) !important;
+    max-width:calc(100vw - 1rem) !important;
+    left:.5rem !important;
+    right:.5rem !important;
   }
 }

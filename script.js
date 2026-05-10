@@ -101,17 +101,36 @@ function applyTheme(themeDefaults) {
 }
 
 let isResizing = false;
-dividerEl.addEventListener('mousedown', () => {
+
+function resizePreview(clientY) {
+  const minPreviewHeight = 150;
+  const minControlsHeight = 180;
+  const maxPreviewHeight = Math.max(minPreviewHeight, window.innerHeight - minControlsHeight);
+  const nextHeight = Math.max(minPreviewHeight, Math.min(clientY, maxPreviewHeight));
+  document.body.style.setProperty('--preview-height', nextHeight + 'px');
+  clampBannerToPreview();
+}
+
+dividerEl.addEventListener('pointerdown', (e) => {
   isResizing = true;
   document.body.style.cursor = 'row-resize';
+  dividerEl.setPointerCapture?.(e.pointerId);
+  e.preventDefault();
 });
 
-window.addEventListener('mousemove', (e) => {
+window.addEventListener('pointermove', (e) => {
   if (!isResizing) return;
-  document.body.style.setProperty('--preview-height', e.clientY + 'px');
+  resizePreview(e.clientY);
 });
 
-window.addEventListener('mouseup', () => {
+window.addEventListener('pointerup', () => {
+  if (isResizing) {
+    isResizing = false;
+    document.body.style.cursor = '';
+  }
+});
+
+window.addEventListener('pointercancel', () => {
   if (isResizing) {
     isResizing = false;
     document.body.style.cursor = '';
@@ -133,7 +152,23 @@ function clampBannerPosition(x, y) {
   };
 }
 
-bannerEl.addEventListener('mousedown', (e) => {
+function clampBannerToPreview() {
+  const currentX = parseFloat(bannerEl.style.left || '0');
+  const currentY = parseFloat(bannerEl.style.top || '0');
+  const { x, y } = clampBannerPosition(currentX, currentY);
+
+  bannerEl.style.left = x + 'px';
+  bannerEl.style.top = y + 'px';
+}
+
+function centerBanner() {
+  const previewRect = previewEl.getBoundingClientRect();
+  const bannerRect = bannerEl.getBoundingClientRect();
+  bannerEl.style.left = Math.max(0, (previewRect.width - bannerRect.width) / 2) + 'px';
+  bannerEl.style.top = Math.max(0, (previewRect.height - bannerRect.height) / 2) + 'px';
+}
+
+bannerEl.addEventListener('pointerdown', (e) => {
   isDragging = true;
   bannerEl.style.cursor = 'grabbing';
   startX = e.clientX;
@@ -144,10 +179,11 @@ bannerEl.addEventListener('mousedown', (e) => {
   origX = bannerRect.left - previewRect.left;
   origY = bannerRect.top - previewRect.top;
 
+  bannerEl.setPointerCapture?.(e.pointerId);
   e.preventDefault();
 });
 
-window.addEventListener('mousemove', (e) => {
+window.addEventListener('pointermove', (e) => {
   if (!isDragging) return;
 
   const dx = e.clientX - startX;
@@ -159,12 +195,21 @@ window.addEventListener('mousemove', (e) => {
   bannerEl.style.top = y + 'px';
 });
 
-window.addEventListener('mouseup', () => {
+window.addEventListener('pointerup', () => {
   if (isDragging) {
     isDragging = false;
     bannerEl.style.cursor = 'grab';
   }
 });
+
+window.addEventListener('pointercancel', () => {
+  if (isDragging) {
+    isDragging = false;
+    bannerEl.style.cursor = 'grab';
+  }
+});
+
+window.addEventListener('resize', clampBannerToPreview);
 
 function exportJson() {
   const themeJson = {};
@@ -189,9 +234,6 @@ document.getElementById('resetDark').onclick = () => applyTheme(darkDefaults);
 document.getElementById('exportJson').onclick = exportJson;
 
 customElements.whenDefined('webring-banner').then(() => {
-  const previewRect = previewEl.getBoundingClientRect();
-  const bannerRect = bannerEl.getBoundingClientRect();
-  bannerEl.style.left = (previewRect.width - bannerRect.width) / 2 + 'px';
-  bannerEl.style.top = (previewRect.height - bannerRect.height) / 2 + 'px';
+  centerBanner();
   applyTheme(darkDefaults);
 });
