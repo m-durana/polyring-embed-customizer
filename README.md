@@ -2,7 +2,7 @@
 
 A small static page for previewing and exporting Polyring embed theme colors.
 
-Live site: https://akuta.xyz/polyring
+Live site: https://miro.build/polyring
 
 ## Integrate With Polyring
 
